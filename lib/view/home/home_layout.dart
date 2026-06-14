@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../utils/colors.dart';
 import '../events_screen.dart';
+import '../profile/profile_screen.dart';
 import 'home_screen.dart';
 
 class HomeLayout extends StatefulWidget {
@@ -24,7 +25,7 @@ class _HomeLayoutState extends State<HomeLayout> {
       HomeScreen(onDrawerTap: () => _scaffoldKey.currentState?.openDrawer()),
       const EventsScreen(),
       const Center(child: Icon(Icons.map_outlined, size: 48, color: AppColors.primary)),
-      const Center(child: Icon(Icons.person_outline, size: 48, color: AppColors.primary)),
+      const ProfileScreen(),
     ];
   }
 

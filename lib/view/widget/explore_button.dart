@@ -1,3 +1,4 @@
+import 'package:booking/view/all_events/all_events_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -11,7 +12,9 @@ class ExploreButton extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: GestureDetector(
-        onTap: () {},
+        onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => AllEventsScreen(),));
+        },
         child: Container(
           width: double.infinity,
           height: 54,
