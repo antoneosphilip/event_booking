@@ -1,6 +1,7 @@
 import '../datasource/events_remote_data_source.dart';
 import '../models/classification_model.dart';
 import '../models/event_model.dart';
+import '../models/event_details_model.dart';
 
 class EventsRepository {
   final EventsRemoteDataSource remoteDataSource;
@@ -73,6 +74,37 @@ class EventsRepository {
       return [];
     } catch (e) {
       throw Exception('Failed to get past events: $e');
+    }
+  }
+
+  Future<EventDetailsModel> getEventDetails(String apiKey, String eventId) async {
+    try {
+      // Fetch details and images concurrently
+      final responses = await Future.wait([
+        remoteDataSource.getEventDetails(apiKey, eventId),
+        remoteDataSource.getEventImages(apiKey, eventId),
+      ]);
+      
+      final detailsData = responses[0];
+      final imagesData = responses[1];
+      
+      return EventDetailsModel.fromJson(detailsData, imagesData);
+    } catch (e) {
+      throw Exception('Failed to get event details: $e');
+    }
+  }
+
+  Future<List<EventModel>> searchEvents(String apiKey, String keyword) async {
+    try {
+      final data = await remoteDataSource.searchEvents(apiKey, keyword);
+      if (data['_embedded'] != null && data['_embedded']['events'] != null) {
+        return (data['_embedded']['events'] as List)
+            .map((e) => EventModel.fromJson(e))
+            .toList();
+      }
+      return [];
+    } catch (e) {
+      throw Exception('Failed to search events: $e');
     }
   }
 }

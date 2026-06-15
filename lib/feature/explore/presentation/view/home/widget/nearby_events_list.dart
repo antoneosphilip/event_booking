@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../cubit/events_cubit.dart';
-import '../../../cubit/events_state.dart';
+import '../../../cubit/event/events_cubit.dart';
+import '../../../cubit/event/events_state.dart';
+import '../../../widgets/shimmer_widgets.dart';
 import 'nearby_event_card.dart';
 
 class NearbyEventsList extends StatelessWidget {
@@ -13,8 +14,10 @@ class NearbyEventsList extends StatelessWidget {
     return BlocBuilder<EventsCubit, EventsState>(
       builder: (context, state) {
         if (state is EventsLoading || state is EventsInitial) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (state is EventsLoaded) {
+          return const NearbyEventsShimmer();
+        }
+
+        if (state is EventsLoaded) {
           final events = state.nearbyEvents;
 
           if (events.isEmpty) {
@@ -23,22 +26,16 @@ class NearbyEventsList extends StatelessWidget {
 
           return Column(
             children: events.map((event) {
-              final imageUrl = event.imageUrl.isNotEmpty ? event.imageUrl : 'assets/images/event_cover.png';
-              final location = event.venueName.isNotEmpty ? event.venueName : 'Unknown Location';
-
-              return NearbyEventCard(
-                title: event.name,
-                date: event.date,
-                location: location,
-                imagePath: imageUrl,
-              );
+              return NearbyEventCard(event: event);
             }).toList(),
           );
-        } else if (state is EventsError) {
+        }
+
+        if (state is EventsError) {
           return Center(child: Text('Error: ${state.message}'));
         }
 
-        return const SizedBox.shrink();
+        return const NearbyEventsShimmer();
       },
     );
   }

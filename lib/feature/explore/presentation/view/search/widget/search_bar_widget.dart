@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:booking/utils/colors.dart';
 
 class SearchBarWidget extends StatelessWidget {
-  const SearchBarWidget({super.key});
+  final TextEditingController? controller;
+  final void Function(String)? onSubmitted;
+  
+  const SearchBarWidget({super.key, this.controller, this.onSubmitted});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +22,11 @@ class SearchBarWidget extends StatelessWidget {
         const SizedBox(width: 8),
         Expanded(
           child: TextField(
+            controller: controller,
+            onSubmitted: onSubmitted,
+            textInputAction: TextInputAction.search,
             decoration: InputDecoration(
+
               hintText: 'Search...',
               hintStyle: TextStyle(
                 color: Colors.grey.shade400,

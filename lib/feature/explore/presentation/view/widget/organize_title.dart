@@ -23,10 +23,10 @@ class OrganizerTile extends StatelessWidget {
           height: 48,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            image: DecorationImage(
-              image: AssetImage(imagePath),
-              fit: BoxFit.cover,
-            ),
+            image:DecorationImage(image:  imagePath.startsWith('http')
+                ? NetworkImage(imagePath) as ImageProvider
+                : AssetImage(imagePath),)
+           
           ),
         ),
         const SizedBox(width: 14),

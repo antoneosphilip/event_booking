@@ -1,14 +1,18 @@
+import 'package:booking/feature/explore/presentation/view/event/event_details.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:booking/utils/colors.dart';
+import 'package:booking/core/constants.dart';
 import 'package:booking/feature/explore/presentation/view/event/widget/event_app_bar.dart';
 import 'package:booking/feature/explore/presentation/view/widget/tab_bar.dart';
 import 'package:booking/feature/explore/presentation/view/widget/empty_state.dart';
 import 'package:booking/feature/explore/presentation/view/all_events/widget/all_event_card.dart';
+import 'package:booking/feature/explore/presentation/widgets/shimmer_widgets.dart';
 
-import '../../cubit/events_cubit.dart';
-import '../../cubit/events_state.dart';
+import '../../../data/models/event_model.dart';
+import '../../cubit/event/events_cubit.dart';
+import '../../cubit/event/events_state.dart';
 
 class EventsScreen extends StatefulWidget {
   const EventsScreen({super.key});
@@ -21,6 +25,20 @@ class EventsScreenState extends State<EventsScreen> {
   int selectedTab = 0;
 
   @override
+  void initState() {
+    // TODO: implement initState
+    context.read<EventsCubit>().fetchAllEvents(
+      apiKey: AppConstants.apiKey,
+      city: AppConstants.defaultCity,
+    );
+    super.initState();
+  }
+  void _onTabChanged(int index) {
+    setState(() => selectedTab = index);
+
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -31,38 +49,45 @@ class EventsScreenState extends State<EventsScreen> {
             const SizedBox(height: 16),
             EventTabBar(
               selectedIndex: selectedTab,
-              onTabChanged: (i) => setState(() => selectedTab = i)
+              onTabChanged: _onTabChanged,
             ),
             Expanded(
               child: BlocBuilder<EventsCubit, EventsState>(
+                buildWhen: (previous, current) => current is AllEventsLoading || current is AllEventsError|| current is AllEventsLoaded ,
                 builder: (context, state) {
-                  if (state is EventsLoading || state is EventsInitial) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (state is EventsLoaded) {
-                    final events = selectedTab == 0 ? state.allUpcomingEvents : state.pastEvents;
+                  if (state is AllEventsLoading) {
+                    return const AllEventsShimmer();
+                  }
+
+                  if (state is AllEventsError) {
+                    return Center(
+                      child: Text(
+                        'Error: ${state.message}',
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    );
+                  }
+
+                  if (state is AllEventsLoaded) {
+                    final events = selectedTab == 0
+                        ? state.upcomingEvents
+                        : state.pastEvents;
 
                     if (events.isEmpty) {
                       return const EmptyState();
                     }
 
                     return ListView.builder(
-                      padding: const EdgeInsets.only(top: 8, bottom: 20),
                       itemCount: events.length,
-                      itemBuilder: (context, index) {
-                        final event = events[index];
-                        final imageUrl = event.imageUrl.isNotEmpty ? event.imageUrl : 'assets/images/event_cover.png';
-                        final location = event.venueName.isNotEmpty ? event.venueName : 'Unknown Location';
-
+                      itemBuilder: (_, index) {
                         return AllEventCard(
-                          title: event.name,
-                          date: event.date,
-                          location: location,
-                          imagePath: imageUrl,
+                          event: events[index],
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => EventDetailsScreen(eventId: events[index].id),));
+                          },
                         );
                       },
                     );
-                  } else if (state is EventsError) {
-                    return Center(child: Text('Error: ${state.message}'));
                   }
                   return const SizedBox.shrink();
                 },

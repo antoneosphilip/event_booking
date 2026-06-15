@@ -1,24 +1,17 @@
 import 'package:flutter/material.dart';
 
 import 'package:booking/utils/colors.dart';
+import '../../../../data/models/event_model.dart';
 
 class EventCard extends StatelessWidget {
-  final String title;
-  final String date;
-  final String month;
-  final String location;
-  final String imagePath;
+  final EventModel event;
   final VoidCallback? onTap;
   final VoidCallback? onBookmark;
   final bool isBookmarked;
 
   const EventCard({
     super.key,
-    required this.title,
-    required this.date,
-    required this.month,
-    required this.location,
-    required this.imagePath,
+    required this.event,
     this.onTap,
     this.onBookmark,
     this.isBookmarked = false,
@@ -26,6 +19,23 @@ class EventCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final imageUrl = event.imageUrl.isNotEmpty
+        ? event.imageUrl
+        : 'assets/images/event_cover.png';
+    final location = event.venueName.isNotEmpty
+        ? event.venueName
+        : 'Unknown Location';
+
+    // Parse date for the badge
+    final dateParts = event.date.split('-');
+    final day = dateParts.length > 2 ? dateParts[2] : '00';
+    final monthNames = [
+      '', 'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
+      'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'
+    ];
+    final monthNum = dateParts.length > 1 ? int.tryParse(dateParts[1]) ?? 0 : 0;
+    final month = monthNum > 0 && monthNum <= 12 ? monthNames[monthNum] : 'NA';
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -51,16 +61,25 @@ class EventCard extends StatelessWidget {
                     topLeft: Radius.circular(18),
                     topRight: Radius.circular(18),
                   ),
-                  child: Image.network(  imagePath,
+                  child: Image.network(
+                    imageUrl,
                     height: 140,
                     width: double.infinity,
-                    fit: BoxFit.cover,)
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      height: 140,
+                      width: double.infinity,
+                      color: Colors.grey.shade200,
+                      child: const Icon(Icons.image, color: Colors.grey),
+                    ),
+                  ),
                 ),
                 Positioned(
                   top: 10,
                   left: 10,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.9),
                       borderRadius: BorderRadius.circular(10),
@@ -68,7 +87,7 @@ class EventCard extends StatelessWidget {
                     child: Column(
                       children: [
                         Text(
-                          date,
+                          day,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
@@ -109,9 +128,10 @@ class EventCard extends StatelessWidget {
               ],
             ),
             Padding(
-              padding: const EdgeInsets.only(left:12 ,top:10 ,right:12 ,bottom:6 ),
+              padding:
+                  const EdgeInsets.only(left: 12, top: 10, right: 12, bottom: 6),
               child: Text(
-                title,
+                event.name,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
@@ -122,7 +142,8 @@ class EventCard extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(left:12,top: 0, right:12, bottom:4),
+              padding:
+                  const EdgeInsets.only(left: 12, top: 0, right: 12, bottom: 4),
               child: Row(
                 children: [
                   SizedBox(
@@ -137,12 +158,12 @@ class EventCard extends StatelessWidget {
                             height: 24,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 2),
-                              image: DecorationImage(
-                                image: AssetImage('assets/images/avatar${i + 1}.png'),
-                                fit: BoxFit.cover,
-                              ),
+                              border:
+                                  Border.all(color: Colors.white, width: 2),
+                              color: Colors.grey.shade300,
                             ),
+                            child: const Icon(Icons.person,
+                                size: 14, color: Colors.white),
                           ),
                         );
                       }),
@@ -164,7 +185,8 @@ class EventCard extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(12, 2, 12, 12),
               child: Row(
                 children: [
-                  Icon(Icons.location_on, size: 14, color: Colors.grey.shade400),
+                  Icon(Icons.location_on,
+                      size: 14, color: Colors.grey.shade400),
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(

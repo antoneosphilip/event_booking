@@ -1,21 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../../core/constants.dart';
+import '../../cubit/event/events_cubit.dart';
 import 'widget/category_list.dart';
 import 'widget/home_app_bar.dart';
 import 'widget/invite_banner.dart';
 import 'widget/nearby_events_list.dart';
 import 'widget/section_header.dart';
 import 'widget/upcoming_events_list.dart';
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   final VoidCallback onDrawerTap;
 
   const HomeScreen({super.key, required this.onDrawerTap});
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    context.read<EventsCubit>().fetchExploreData(
+      apiKey: AppConstants.apiKey,
+      city: AppConstants.defaultCity,
+      latlong: AppConstants.defaultLatlong,
+    );
+    super.initState();
+  }
+  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        HomeAppBar(onDrawerTap: onDrawerTap),
+        HomeAppBar(onDrawerTap: widget.onDrawerTap),
         Expanded(
           child: SingleChildScrollView(
             child: Column(
