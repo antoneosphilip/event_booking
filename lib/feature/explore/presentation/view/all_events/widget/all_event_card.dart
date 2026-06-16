@@ -1,25 +1,27 @@
 import 'package:flutter/material.dart';
 
 import 'package:booking/utils/colors.dart';
+import '../../../../data/models/event_model.dart';
 
 class AllEventCard extends StatelessWidget {
-  final String title;
-  final String date;
-  final String location;
-  final String imagePath;
+  final EventModel event;
   final VoidCallback? onTap;
 
   const AllEventCard({
     super.key,
-    required this.title,
-    required this.date,
-    required this.location,
-    required this.imagePath,
+    required this.event,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final imageUrl = event.imageUrl.isNotEmpty
+        ? event.imageUrl
+        : 'assets/images/event_cover.png';
+    final location = event.venueName.isNotEmpty
+        ? event.venueName
+        : 'Unknown Location';
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -41,10 +43,16 @@ class AllEventCard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: Image.network(
-                imagePath,
+                imageUrl,
                 width: 90,
                 height: 90,
                 fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  width: 90,
+                  height: 90,
+                  color: Colors.grey.shade200,
+                  child: const Icon(Icons.image, color: Colors.grey),
+                ),
               ),
             ),
             const SizedBox(width: 16),
@@ -54,7 +62,7 @@ class AllEventCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    date,
+                    event.date,
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
@@ -63,7 +71,7 @@ class AllEventCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    title,
+                    event.name,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
@@ -75,7 +83,8 @@ class AllEventCard extends StatelessWidget {
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      Icon(Icons.location_on, size: 14, color: Colors.grey.shade400),
+                      Icon(Icons.location_on,
+                          size: 14, color: Colors.grey.shade400),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(

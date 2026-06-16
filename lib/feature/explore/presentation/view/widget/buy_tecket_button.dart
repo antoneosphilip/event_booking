@@ -13,7 +13,7 @@ class BuyTicketButton extends StatelessWidget {
       margin: const EdgeInsets.fromLTRB(20, 0, 20, 32),
       child: GestureDetector(
         onTap: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => EventsScreen()));
+         // Navigator.push(context, MaterialPageRoute(builder: (context) => EventsScreen()));
         },
         child: Container(
           width: double.infinity,

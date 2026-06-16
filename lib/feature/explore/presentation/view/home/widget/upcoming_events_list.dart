@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../cubit/events_cubit.dart';
-import '../../../cubit/events_state.dart';
+import '../../../cubit/event/events_cubit.dart';
+import '../../../cubit/event/events_state.dart';
+import '../../../widgets/shimmer_widgets.dart';
 import 'event_card.dart';
 
 class UpcomingEventsList extends StatelessWidget {
@@ -13,13 +14,12 @@ class UpcomingEventsList extends StatelessWidget {
     return BlocBuilder<EventsCubit, EventsState>(
       builder: (context, state) {
         if (state is EventsLoading || state is EventsInitial) {
-          return const SizedBox(
-            height: 260,
-            child: Center(child: CircularProgressIndicator()),
-          );
-        } else if (state is EventsLoaded) {
+          return const UpcomingEventsShimmer();
+        }
+
+        if (state is EventsLoaded) {
           final events = state.upcomingEvents;
-          
+
           if (events.isEmpty) {
             return const SizedBox(
               height: 260,
@@ -35,34 +35,20 @@ class UpcomingEventsList extends StatelessWidget {
               itemCount: events.length,
               separatorBuilder: (_, __) => const SizedBox(width: 16),
               itemBuilder: (context, index) {
-                final event = events[index];
-                
-                final dateParts = event.date.split('-');
-                final day = dateParts.length > 2 ? dateParts[2] : '00';
-                final month = dateParts.length > 1 ? 'M${dateParts[1]}' : 'NA';
-                
-                final imageUrl = event.imageUrl.isNotEmpty ? event.imageUrl : 'assets/images/event_cover.png';
-                final location = event.venueName.isNotEmpty ? event.venueName : 'Unknown Location';
-
-                return EventCard(
-                  title: event.name,
-                  date: day,
-                  month: month,
-                  location: location,
-                  imagePath: imageUrl,
-                  isBookmarked: false,
-                );
+                return EventCard(event: events[index]);
               },
             ),
           );
-        } else if (state is EventsError) {
+        }
+
+        if (state is EventsError) {
           return SizedBox(
             height: 260,
             child: Center(child: Text('Error: ${state.message}')),
           );
         }
-        
-        return const SizedBox.shrink();
+
+        return const UpcomingEventsShimmer();
       },
     );
   }

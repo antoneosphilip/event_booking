@@ -1,52 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:booking/utils/colors.dart';
+import 'package:booking/core/constants.dart';
+import 'package:booking/feature/explore/presentation/cubit/event/events_cubit.dart';
+import 'package:booking/feature/explore/presentation/widgets/shimmer_widgets.dart';
+import '../../cubit/event/events_state.dart';
 import 'widget/all_event_card.dart';
 
-class AllEventsScreen extends StatelessWidget {
+class AllEventsScreen extends StatefulWidget {
   const AllEventsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final events = [
-      {
-        'title': "Jo Malone London's Mother's Day Presents",
-        'date': 'Wed, Apr 28 · 5:30 PM',
-        'location': 'Radius Gallery • Santa Cruz, CA',
-        'image': 'assets/images/onboarding_1.png',
-      },
-      {
-        'title': 'A Virtual Evening of Smooth Jazz',
-        'date': 'Sat, May 1 · 2:00 PM',
-        'location': 'Lot 13 • Oakland, CA',
-        'image': 'assets/images/onboarding_2.png',
-      },
-      {
-        'title': "Women's Leadership Conference 2021",
-        'date': 'Sat, Apr 24 · 1:30 PM',
-        'location': '53 Bush St • San Francisco, CA',
-        'image': 'assets/images/onboarding_3.png',
-      },
-      {
-        'title': 'International Kids Safe Parents Night Out',
-        'date': 'Fri, Apr 23 · 6:00 PM',
-        'location': 'Lot 13 • Oakland, CA',
-        'image': 'assets/images/onboarding_1.png',
-      },
-      {
-        'title': 'Collectivity Plays the Music of Jimi',
-        'date': 'Mon, Jun 21 · 10:00 PM',
-        'location': 'Longboard Margarita Bar',
-        'image': 'assets/images/onboarding_2.png',
-      },
-      {
-        'title': 'International Gala Music Festival',
-        'date': 'Sun, Apr 25 · 10:15 AM',
-        'location': '36 Guild Street London, UK',
-        'image': 'assets/images/event_cover.png',
-      },
-    ];
+  State<AllEventsScreen> createState() => _AllEventsScreenState();
+}
 
+class _AllEventsScreenState extends State<AllEventsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<EventsCubit>().fetchAllEvents(
+          apiKey: AppConstants.apiKey,
+          city: AppConstants.defaultCity,
+        );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -66,27 +46,44 @@ class AllEventsScreen extends StatelessWidget {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search, color: AppColors.textPrimary, size: 28),
+            icon: const Icon(Icons.search,
+                color: AppColors.textPrimary, size: 28),
             onPressed: () {},
           ),
           IconButton(
-            icon: const Icon(Icons.more_vert, color: AppColors.textPrimary, size: 28),
+            icon: const Icon(Icons.more_vert,
+                color: AppColors.textPrimary, size: 28),
             onPressed: () {},
           ),
           const SizedBox(width: 8),
         ],
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.only(top: 8, bottom: 20),
-        itemCount: events.length,
-        itemBuilder: (context, index) {
-          final event = events[index];
-          return AllEventCard(
-            title: event['title']!,
-            date: event['date']!,
-            location: event['location']!,
-            imagePath: event['image']!,
-          );
+      body: BlocBuilder<EventsCubit, EventsState>(
+        builder: (context, state) {
+          if (state is AllEventsLoading) {
+            return const AllEventsShimmer();
+          }
+
+          if (state is AllEventsLoaded) {
+            final events = state.upcomingEvents;
+            if (events.isEmpty) {
+              return const Center(child: Text('No events found'));
+            }
+
+            return ListView.builder(
+              padding: const EdgeInsets.only(top: 8, bottom: 20),
+              itemCount: events.length,
+              itemBuilder: (context, index) {
+                return AllEventCard(event: events[index]);
+              },
+            );
+          }
+
+          if (state is AllEventsError) {
+            return Center(child: Text('Error: ${state.message}'));
+          }
+
+          return const AllEventsShimmer();
         },
       ),
     );

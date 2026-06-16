@@ -5,7 +5,9 @@ import 'package:booking/utils/colors.dart';
 import '../../widget/going_row.dart';
 
 class EventAppBar extends StatelessWidget {
-  const   EventAppBar({super.key});
+  final String imageUrl;
+
+  const EventAppBar({super.key, required this.imageUrl});
 
   @override
   Widget build(BuildContext context) {
@@ -13,12 +15,25 @@ class EventAppBar extends StatelessWidget {
       height: 260,
       child: Stack(
         children: [
-          Image.asset(
-            'assets/images/event_cover.png',
-            fit: BoxFit.cover,
-            width: double.infinity,
-            height: 240,
-          ),
+          imageUrl.isNotEmpty
+              ? Image.network(
+                  imageUrl,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: 240,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    color: Colors.grey,
+                    width: double.infinity,
+                    height: 240,
+                    child: const Icon(Icons.broken_image, size: 50, color: Colors.white),
+                  ),
+                )
+              : Image.asset(
+                  'assets/images/event_cover.png',
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: 240,
+                ),
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),

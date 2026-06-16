@@ -65,4 +65,36 @@ class EventsRemoteDataSource {
     );
     return response.data;
   }
+
+  Future<Map<String, dynamic>> getEventDetails(String apiKey, String eventId) async {
+    final response = await DioHelper.getData(
+      url: '/discovery/v2/events/$eventId.json',
+      query: {
+        'apikey': apiKey,
+      },
+    );
+    return response.data;
+  }
+
+  Future<Map<String, dynamic>> getEventImages(String apiKey, String eventId) async {
+    final response = await DioHelper.getData(
+      url: '/discovery/v2/events/$eventId/images',
+      query: {
+        'apikey': apiKey,
+      },
+    );
+    return response.data;
+  }
+
+  Future<Map<String, dynamic>> searchEvents(String apiKey, String keyword) async {
+    final response = await DioHelper.getData(
+      url: '/discovery/v2/events.json',
+      query: {
+        'apikey': apiKey,
+        'keyword': keyword,
+        'size': 20,
+      },
+    );
+    return response.data;
+  }
 }
