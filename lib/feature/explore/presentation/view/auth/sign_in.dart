@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:booking/utils/colors.dart';
+import '../../../../../core/service_locator.dart';
 import '../../cubit/auth/auth_cubit.dart';
 import 'Sign_up.dart';
 
@@ -56,100 +57,103 @@ class SignInScreenState extends State<SignInScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<AuthCubit, AuthState>(
-      listener: (context, state) {
-        if (state is AuthSuccess) {
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => const HomeLayout()));
-        } else if (state is AuthError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message)),
-          );
-        }
-      },
-      builder: (context, state) {
-        return Scaffold(
-          backgroundColor: AppColors.background,
-          body: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const AppLogo(),
-                  const SizedBox(height: 32),
-                  const ScreenTitle(title: 'Sign in'),
-                  const SizedBox(height: 24),
-                  InputField(
-                    controller: emailController,
-                    hint: 'abc@email.com',
-                    icon: Icons.email_outlined,
-                  ),
-                  const SizedBox(height: 14),
-                  PasswordField(
-                    controller: passwordController,
-                    hint: 'Your password',
-                    obscure: obscurePassword,
-                    onToggle: () => setState(() => obscurePassword = !obscurePassword),
-                  ),
-                  const SizedBox(height: 14),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      RememberMe(
-                        value: rememberMe,
-                        onChanged: (v) => setState(() {
-                          rememberMe = v;
-                        }),
-                      ),
-                      ForgotPassword(onTap: () {}),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  state is AuthLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : PrimaryButton(
-                          label: 'SIGN IN',
-                          onTap: () {
-                            context.read<AuthCubit>().signIn(
-                                  emailController.text,
-                                  passwordController.text,
-                                  rememberMe: rememberMe,
-                                );
-                          },
+    return BlocProvider(
+      create: (BuildContext context)=>sl<AuthCubit>()..loadSession,
+      child: BlocConsumer<AuthCubit, AuthState>(
+        listener: (context, state) {
+          if (state is AuthSuccess) {
+            Navigator.pushReplacement(
+                context, MaterialPageRoute(builder: (context) => const HomeLayout()));
+          } else if (state is AuthError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message)),
+            );
+          }
+        },
+        builder: (context, state) {
+          return Scaffold(
+            backgroundColor: AppColors.background,
+            body: SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const AppLogo(),
+                    const SizedBox(height: 32),
+                    const ScreenTitle(title: 'Sign in'),
+                    const SizedBox(height: 24),
+                    InputField(
+                      controller: emailController,
+                      hint: 'abc@email.com',
+                      icon: Icons.email_outlined,
+                    ),
+                    const SizedBox(height: 14),
+                    PasswordField(
+                      controller: passwordController,
+                      hint: 'Your password',
+                      obscure: obscurePassword,
+                      onToggle: () => setState(() => obscurePassword = !obscurePassword),
+                    ),
+                    const SizedBox(height: 14),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        RememberMe(
+                          value: rememberMe,
+                          onChanged: (v) => setState(() {
+                            rememberMe = v;
+                          }),
                         ),
-                  const SizedBox(height: 24),
-                  const OrDivider(),
-                  const SizedBox(height: 24),
-                  SocialButton(
-                    logo: 'assets/icons/google.png',
-                    label: 'Login with Google',
-                    onTap: () {},
-                  ),
-                  const SizedBox(height: 12),
-                  SocialButton(
-                    logo: 'assets/icons/facebook.png',
-                    label: 'Login with Facebook',
-                    onTap: () {},
-                  ),
-                  const SizedBox(height: 28),
-                  BottomLink(
-                    question: "Don't have an account? ",
-                    linkText: 'Sign up',
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const SignUpScreen(),
-                          ));
-                    },
-                  ),
-                ],
+                        ForgotPassword(onTap: () {}),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    state is AuthLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : PrimaryButton(
+                            label: 'SIGN IN',
+                            onTap: () {
+                              context.read<AuthCubit>().signIn(
+                                    emailController.text,
+                                    passwordController.text,
+                                    rememberMe: rememberMe,
+                                  );
+                            },
+                          ),
+                    const SizedBox(height: 24),
+                    const OrDivider(),
+                    const SizedBox(height: 24),
+                    SocialButton(
+                      logo: 'assets/icons/google.png',
+                      label: 'Login with Google',
+                      onTap: () {},
+                    ),
+                    const SizedBox(height: 12),
+                    SocialButton(
+                      logo: 'assets/icons/facebook.png',
+                      label: 'Login with Facebook',
+                      onTap: () {},
+                    ),
+                    const SizedBox(height: 28),
+                    BottomLink(
+                      question: "Don't have an account? ",
+                      linkText: 'Sign up',
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>  SignUpScreen (authCubit: context.read<AuthCubit>(),),
+                            ));
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
