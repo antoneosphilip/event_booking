@@ -79,7 +79,6 @@ class EventsRepository {
 
   Future<EventDetailsModel> getEventDetails(String apiKey, String eventId) async {
     try {
-      // Fetch details and images concurrently
       final responses = await Future.wait([
         remoteDataSource.getEventDetails(apiKey, eventId),
         remoteDataSource.getEventImages(apiKey, eventId),

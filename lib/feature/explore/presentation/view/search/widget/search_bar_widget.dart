@@ -5,8 +5,9 @@ import 'package:booking/utils/colors.dart';
 class SearchBarWidget extends StatelessWidget {
   final TextEditingController? controller;
   final void Function(String)? onSubmitted;
-  
-  const SearchBarWidget({super.key, this.controller, this.onSubmitted});
+  final void Function(String)? onChanged;
+
+  const SearchBarWidget({super.key, this.controller, this.onSubmitted, this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -24,9 +25,9 @@ class SearchBarWidget extends StatelessWidget {
           child: TextField(
             controller: controller,
             onSubmitted: onSubmitted,
+            onChanged:onChanged ,
             textInputAction: TextInputAction.search,
             decoration: InputDecoration(
-
               hintText: 'Search...',
               hintStyle: TextStyle(
                 color: Colors.grey.shade400,

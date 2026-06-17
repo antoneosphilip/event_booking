@@ -35,7 +35,6 @@ class EventsScreenState extends State<EventsScreen> {
   }
   void _onTabChanged(int index) {
     setState(() => selectedTab = index);
-
   }
 
   @override

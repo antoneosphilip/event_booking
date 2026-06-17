@@ -53,6 +53,7 @@ class EventsRemoteDataSource {
   }
 
   Future<Map<String, dynamic>> getPastEvents(String apiKey, String city) async {
+
     final response = await DioHelper.getData(
       url: '/discovery/v2/events.json',
       query: {

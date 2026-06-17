@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:booking/utils/colors.dart';
 import '../../../../data/models/event_model.dart';
+import '../../../cubit/favorites/favorites_cubit.dart';
 
 class AllEventCard extends StatelessWidget {
   final EventModel event;
@@ -101,6 +103,23 @@ class AllEventCard extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
+            BlocBuilder<FavoritesCubit, FavoritesState>(
+              builder: (context, state) {
+                bool isFavorite = false;
+                if (state is FavoritesLoaded) {
+                  isFavorite = state.favorites.any((e) => e.id == event.id);
+                }
+                return IconButton(
+                  icon: Icon(
+                    isFavorite ? Icons.favorite : Icons.favorite_border,
+                    color: isFavorite ? Colors.red : Colors.grey.shade400,
+                  ),
+                  onPressed: () {
+                    context.read<FavoritesCubit>().toggleFavorite(event);
+                  },
+                );
+              },
             ),
           ],
         ),

@@ -55,9 +55,14 @@ class _SearchScreenState extends State<SearchScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   child: SearchBarWidget(
                     controller: _searchController,
-
+                    onChanged: (value) {
+                      innerContext.read<SearchCubit>().searchEvents(
+                        AppConstants.apiKey,
+                        value,
+                      );
+                    },
                     onSubmitted: (value) {
-                      context.read<SearchCubit>().searchEvents(
+                      innerContext.read<SearchCubit>().searchEvents(
                             AppConstants.apiKey,
                             value,
                           );

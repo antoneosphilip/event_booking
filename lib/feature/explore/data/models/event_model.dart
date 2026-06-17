@@ -45,4 +45,25 @@ class EventModel {
       cityName: cName,
     );
   }
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'imageUrl': imageUrl,
+      'date': date,
+      'venueName': venueName,
+      'cityName': cityName,
+    };
+  }
+
+  factory EventModel.fromMap(Map<String, dynamic> map) {
+    return EventModel(
+      id: map['id'] ?? '',
+      name: map['name'] ?? '',
+      imageUrl: map['imageUrl'] ?? '',
+      date: map['date'] ?? '',
+      venueName: map['venueName'] ?? '',
+      cityName: map['cityName'] ?? '',
+    );
+  }
 }
