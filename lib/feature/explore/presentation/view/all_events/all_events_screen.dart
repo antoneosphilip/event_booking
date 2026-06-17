@@ -60,30 +60,30 @@ class _AllEventsScreenState extends State<AllEventsScreen> {
       ),
       body: BlocBuilder<EventsCubit, EventsState>(
         builder: (context, state) {
-          if (state is AllEventsLoading) {
+          if (state is! EventsLoaded) {
             return const AllEventsShimmer();
           }
 
-          if (state is AllEventsLoaded) {
-            final events = state.upcomingEvents;
-            if (events.isEmpty) {
-              return const Center(child: Text('No events found'));
-            }
-
-            return ListView.builder(
-              padding: const EdgeInsets.only(top: 8, bottom: 20),
-              itemCount: events.length,
-              itemBuilder: (context, index) {
-                return AllEventCard(event: events[index]);
-              },
-            );
+          if (state.allEventsLoading && state.allUpcomingEvents.isEmpty) {
+            return const AllEventsShimmer();
           }
 
-          if (state is AllEventsError) {
-            return Center(child: Text('Error: ${state.message}'));
+          if (state.allEventsError != null && state.allUpcomingEvents.isEmpty) {
+            return Center(child: Text('Error: ${state.allEventsError}'));
           }
 
-          return const AllEventsShimmer();
+          final events = state.allUpcomingEvents;
+          if (events.isEmpty) {
+            return const Center(child: Text('No events found'));
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.only(top: 8, bottom: 20),
+            itemCount: events.length,
+            itemBuilder: (context, index) {
+              return AllEventCard(event: events[index]);
+            },
+          );
         },
       ),
     );

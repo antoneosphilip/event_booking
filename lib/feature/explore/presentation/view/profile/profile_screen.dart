@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:booking/utils/colors.dart';
 import '../../cubit/auth/auth_cubit.dart';
+import '../auth/sign_in.dart';
 import 'widget/about_tab.dart';
 import 'widget/favorite_tab.dart';
 import 'widget/profile_action_buttons.dart';
@@ -25,48 +26,75 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return BlocBuilder<AuthCubit, AuthState>(
       builder: (context, state) {
-        if (state is! AuthSuccess) {
+        if (state is AuthSuccess) {
+          final user = state.user;
+
+          return Scaffold(
+            backgroundColor: AppColors.background,
+            appBar: AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+                onPressed: () {},
+              ),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.more_vert, color: AppColors.textPrimary),
+                  onPressed: () {},
+                ),
+              ],
+            ),
+            body: SafeArea(
+              child: Column(
+                children: [
+                  const SizedBox(height: 16),
+                  ProfileHeader(name: user.name, email: user.email),
+                  const SizedBox(height: 24),
+                  const ProfileStats(),
+                  const SizedBox(height: 24),
+                  const ProfileActionButtons(),
+                  const SizedBox(height: 32),
+                  ProfileTabBar(
+                    selectedIndex: selectedTab,
+                    onTabChanged: (index) => setState(() => selectedTab = index),
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: _buildTabContent(user.name, user.email),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        if (state is AuthLoading) {
           return const Scaffold(
             backgroundColor: AppColors.background,
             body: Center(child: CircularProgressIndicator()),
           );
         }
 
-        final user = state.user;
-
         return Scaffold(
           backgroundColor: AppColors.background,
-          appBar: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
-              onPressed: () {},
-            ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.more_vert, color: AppColors.textPrimary),
-                onPressed: () {},
-              ),
-            ],
-          ),
-          body: SafeArea(
+          body: Center(
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 16),
-                ProfileHeader(name: user.name, email: user.email),
-                const SizedBox(height: 24),
-                const ProfileStats(),
-                const SizedBox(height: 24),
-                const ProfileActionButtons(),
-                const SizedBox(height: 32),
-                ProfileTabBar(
-                  selectedIndex: selectedTab,
-                  onTabChanged: (index) => setState(() => selectedTab = index),
+                Text(
+                  state is AuthError ? state.message : 'Please sign in',
+                  textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
-                Expanded(
-                  child: _buildTabContent(user.name, user.email),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (_) => const SignInScreen()),
+                      (route) => false,
+                    );
+                  },
+                  child: const Text('Sign In'),
                 ),
               ],
             ),

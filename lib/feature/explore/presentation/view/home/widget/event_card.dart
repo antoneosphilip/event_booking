@@ -1,20 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:booking/utils/colors.dart';
 import '../../../../data/models/event_model.dart';
+import '../../../cubit/favorites/favorites_cubit.dart';
 
 class EventCard extends StatelessWidget {
   final EventModel event;
   final VoidCallback? onTap;
-  final VoidCallback? onBookmark;
-  final bool isBookmarked;
 
   const EventCard({
     super.key,
     required this.event,
     this.onTap,
-    this.onBookmark,
-    this.isBookmarked = false,
   });
 
   @override
@@ -26,7 +24,6 @@ class EventCard extends StatelessWidget {
         ? event.venueName
         : 'Unknown Location';
 
-    // Parse date for the badge
     final dateParts = event.date.split('-');
     final day = dateParts.length > 2 ? dateParts[2] : '00';
     final monthNames = [
@@ -109,20 +106,38 @@ class EventCard extends StatelessWidget {
                 Positioned(
                   top: 10,
                   right: 10,
-                  child: GestureDetector(
-                    onTap: onBookmark,
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.9),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Icon(
-                        isBookmarked ? Icons.bookmark : Icons.bookmark_border,
-                        size: 18,
-                        color: const Color(0xFFF0635A),
-                      ),
-                    ),
+                  child: BlocBuilder<FavoritesCubit, FavoritesState>(
+                    builder: (context, state) {
+                      var isFavorite = false;
+                      if (state is FavoritesLoaded) {
+                        isFavorite =
+                            state.favorites.any((e) => e.id == event.id);
+                      }
+
+                      return GestureDetector(
+                        onTap: () {
+                          context
+                              .read<FavoritesCubit>()
+                              .toggleFavorite(event);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.9),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(
+                            isFavorite
+                                ? Icons.favorite
+                                : Icons.favorite_border,
+                            size: 18,
+                            color: isFavorite
+                                ? Colors.red
+                                : const Color(0xFFF0635A),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
               ],

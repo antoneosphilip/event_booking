@@ -67,6 +67,24 @@ class EventsRemoteDataSource {
     return response.data;
   }
 
+  Future<Map<String, dynamic>> getEventsByClassification(
+    String apiKey,
+    String city,
+    String segmentId,
+  ) async {
+    final response = await DioHelper.getData(
+      url: '/discovery/v2/events.json',
+      query: {
+        'apikey': apiKey,
+        'city': city,
+        'segmentId': segmentId,
+        'sort': 'date,asc',
+        'size': 20,
+      },
+    );
+    return response.data;
+  }
+
   Future<Map<String, dynamic>> getEventDetails(String apiKey, String eventId) async {
     final response = await DioHelper.getData(
       url: '/discovery/v2/events/$eventId.json',

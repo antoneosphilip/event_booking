@@ -28,15 +28,22 @@ class _HomeLayoutState extends State<HomeLayout> {
     super.initState();
 
     _pages = [
-      HomeScreen(onDrawerTap: () => _scaffoldKey.currentState?.openDrawer()),
+      HomeScreen(
+        onDrawerTap: () => _scaffoldKey.currentState?.openDrawer(),
+        onCategorySelected: () => setState(() => _currentIndex = 1),
+      ),
       const EventsScreen(),
-      const Center(child: Icon(Icons.map_outlined, size: 48, color: AppColors.primary)),
+      const Center(
+        child: Icon(Icons.map_outlined, size: 48, color: AppColors.primary),
+      ),
       const ProfileScreen(),
     ];
-
   }
 
   void _onTabTapped(BuildContext innerContext, int index) {
+    if (index != 1) {
+      innerContext.read<EventsCubit>().clearCategoryFilter();
+    }
     setState(() => _currentIndex = index);
   }
 
@@ -93,7 +100,12 @@ class _HomeLayoutState extends State<HomeLayout> {
     );
   }
 
-  Widget _buildNavItem(BuildContext innerContext, IconData icon, String label, int index) {
+  Widget _buildNavItem(
+    BuildContext innerContext,
+    IconData icon,
+    String label,
+    int index,
+  ) {
     final isSelected = _currentIndex == index;
     return GestureDetector(
       onTap: () => _onTabTapped(innerContext, index),

@@ -77,6 +77,25 @@ class EventsRepository {
     }
   }
 
+  Future<List<EventModel>> getEventsByClassification(
+    String apiKey,
+    String city,
+    String segmentId,
+  ) async {
+    try {
+      final data =
+          await remoteDataSource.getEventsByClassification(apiKey, city, segmentId);
+      if (data['_embedded'] != null && data['_embedded']['events'] != null) {
+        return (data['_embedded']['events'] as List)
+            .map((e) => EventModel.fromJson(e))
+            .toList();
+      }
+      return [];
+    } catch (e) {
+      throw Exception('Failed to get category events: $e');
+    }
+  }
+
   Future<EventDetailsModel> getEventDetails(String apiKey, String eventId) async {
     try {
       final responses = await Future.wait([

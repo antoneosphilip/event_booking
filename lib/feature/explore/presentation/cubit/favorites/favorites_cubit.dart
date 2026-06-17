@@ -21,6 +21,15 @@ class FavoritesCubit extends Cubit<FavoritesState> {
   }
 
   Future<void> toggleFavorite(EventModel event) async {
+    final current = state;
+    if (current is FavoritesLoaded) {
+      final isFav = current.favorites.any((e) => e.id == event.id);
+      final updated = isFav
+          ? current.favorites.where((e) => e.id != event.id).toList()
+          : [...current.favorites, event];
+      emit(FavoritesLoaded(updated));
+    }
+
     try {
       final isFav = await favoritesDataSource.isFavorite(event.id);
       if (isFav) {
@@ -28,9 +37,10 @@ class FavoritesCubit extends Cubit<FavoritesState> {
       } else {
         await favoritesDataSource.addFavorite(event);
       }
-      await loadFavorites();
+      final favorites = await favoritesDataSource.getFavorites();
+      emit(FavoritesLoaded(favorites));
     } catch (e) {
-      emit(FavoritesError(e.toString()));
+      await loadFavorites();
     }
   }
 }

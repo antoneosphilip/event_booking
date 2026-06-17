@@ -16,19 +16,30 @@ class AuthCubit extends Cubit<AuthState> {
     this.authRepository,
     this.appPreferences,
     this.secureStorage,
-  ) : super(AuthInitial());
+  ) : super(
+          appPreferences.isLoggedIn() ? AuthLoading() : AuthInitial(),
+        );
 
   Future<void> loadSession() async {
-    if (!appPreferences.isLoggedIn()) return;
+    if (!appPreferences.isLoggedIn()) {
+      emit(AuthInitial());
+      return;
+    }
 
     final email = appPreferences.getCurrentUserEmail();
-    if (email == null) return;
+    if (email == null) {
+      await appPreferences.clearAuth();
+      emit(AuthInitial());
+      return;
+    }
 
+    emit(AuthLoading());
     final user = await authRepository.getUserByEmail(email);
     if (user != null) {
       emit(AuthSuccess(user));
     } else {
       await appPreferences.clearAuth();
+      emit(AuthInitial());
     }
   }
 
